@@ -75,19 +75,35 @@ export function ReportPreview({
   projectTitle = '',
   githubUrl = '',
   coverEditMode = false,
-  freeCoverContent = '',
+  freeCoverTitle = '',
+  freeCoverSubtitle = 'Reporte del Proyecto',
+  freeCoverBody = '',
   onFreeCoverChange,
 }) {
   const containerRef = useRef(null);
-  const coverEditorRef = useRef(null);
+  const titleRef = useRef(null);
+  const subtitleRef = useRef(null);
+  const bodyRef = useRef(null);
   const prevCoverEditModeRef = useRef(false);
 
   useEffect(() => {
-    if (coverEditMode && !prevCoverEditModeRef.current && coverEditorRef.current) {
-      coverEditorRef.current.innerText = freeCoverContent;
+    if (!coverEditMode) return;
+    if (!prevCoverEditModeRef.current) {
+      if (titleRef.current) titleRef.current.innerText = freeCoverTitle;
+      if (subtitleRef.current) subtitleRef.current.innerText = freeCoverSubtitle;
+      if (bodyRef.current) bodyRef.current.innerText = freeCoverBody;
     }
     prevCoverEditModeRef.current = coverEditMode;
-  }, [coverEditMode, freeCoverContent]);
+  }, [coverEditMode, freeCoverTitle, freeCoverSubtitle, freeCoverBody]);
+
+  const emitCoverChange = useCallback(() => {
+    if (!onFreeCoverChange || !titleRef.current || !subtitleRef.current || !bodyRef.current) return;
+    onFreeCoverChange({
+      title: titleRef.current.innerText,
+      subtitle: subtitleRef.current.innerText,
+      body: bodyRef.current.innerText,
+    });
+  }, [onFreeCoverChange]);
 
   const sections = useMemo(
     () => (project?.files ? buildDocSections(project.files) : []),
@@ -113,15 +129,35 @@ export function ReportPreview({
       {/* Cover */}
       <section className="report-cover">
         {coverEditMode ? (
-          <div
-            ref={coverEditorRef}
-            className="report-cover-editor"
-            contentEditable
-            suppressContentEditableWarning
-            onInput={(e) => onFreeCoverChange?.(e.currentTarget.innerText)}
-            role="textbox"
-            aria-label="Portada editable"
-          />
+          <>
+            <h1
+              ref={titleRef}
+              className="report-cover-title report-cover-editable"
+              contentEditable
+              suppressContentEditableWarning
+              onInput={emitCoverChange}
+              role="textbox"
+              aria-label="Título del proyecto"
+            />
+            <p
+              ref={subtitleRef}
+              className="report-cover-subtitle report-cover-editable"
+              contentEditable
+              suppressContentEditableWarning
+              onInput={emitCoverChange}
+              role="textbox"
+              aria-label="Subtítulo"
+            />
+            <div
+              ref={bodyRef}
+              className="report-cover-editor-body report-cover-editable"
+              contentEditable
+              suppressContentEditableWarning
+              onInput={emitCoverChange}
+              role="textbox"
+              aria-label="Snack URL y repositorio"
+            />
+          </>
         ) : (
           <>
             <h1 className="report-cover-title">{projectTitle || project.projectName}</h1>

@@ -395,30 +395,29 @@
   padding: 48px 0;
 }
 
-.report-cover-editor {
+/* Editable cover blocks: keep original cover style, no box */
+.report-cover-editable {
+  outline: none;
   display: block;
   width: 100%;
-  max-width: 100%;
-  min-height: 280px;
-  padding: 24px;
-  margin: 0 auto;
-  box-sizing: border-box;
-  text-align: left;
+  min-height: 1.2em;
+}
+
+.report-cover-editable:focus {
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.report-cover-editor-body {
+  text-align: center;
   white-space: pre-wrap;
   word-wrap: break-word;
   overflow-wrap: break-word;
-  font-size: 1rem;
-  line-height: 1.5;
+  margin-top: 24px;
+  margin-bottom: 0;
+  min-height: 80px;
+  font-size: 0.95rem;
   color: var(--text-h);
-  background: var(--code-bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  outline: none;
-}
-
-.report-cover-editor:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-bg);
 }
 
 .report-cover-title {

@@ -22,7 +22,9 @@ function App() {
   const [projectTitle, setProjectTitle] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
   const [coverEditMode, setCoverEditMode] = useState(false);
-  const [freeCoverContent, setFreeCoverContent] = useState('');
+  const [freeCoverTitle, setFreeCoverTitle] = useState('');
+  const [freeCoverSubtitle, setFreeCoverSubtitle] = useState('Reporte del Proyecto');
+  const [freeCoverBody, setFreeCoverBody] = useState('');
 
   const reportProject = useMemo(() => {
     if (!project?.files?.length) return null;
@@ -36,31 +38,20 @@ function App() {
     };
   }, [project, selectedPaths]);
 
-  function buildDefaultCoverContent(title, snack, github) {
-    const lines = [
-      'Título del Proyecto',
-      '',
-      title || '(Título del proyecto)',
-      '',
-      'Snack URL:',
-      snack || '(obligatorio)',
-      '',
-      'Repositorio de GitHub:',
-      github || '(opcional)',
-    ];
-    return lines.join('\n');
-  }
-
   const handleCoverEditToggle = useCallback((enabled) => {
     setCoverEditMode(enabled);
     if (enabled) {
-      setFreeCoverContent(buildDefaultCoverContent(
-        projectTitle.trim() || reportProject?.projectName,
-        snackUrl.trim(),
-        githubUrl.trim()
-      ));
+      setFreeCoverTitle(projectTitle.trim() || reportProject?.projectName || '');
+      setFreeCoverSubtitle('Reporte del Proyecto');
+      setFreeCoverBody(
+        ['Snack URL:', snackUrl.trim() || '(obligatorio)', '', 'Repositorio de GitHub:', githubUrl.trim() || '(opcional)'].join('\n')
+      );
     }
   }, [projectTitle, snackUrl, githubUrl, reportProject]);
+
+  const freeCoverContentForPdf = coverEditMode
+    ? [freeCoverTitle, freeCoverSubtitle, freeCoverBody].join('\n\n')
+    : '';
 
   const handleProjectLoaded = useCallback((proj) => {
     setProject(proj);
@@ -98,7 +89,7 @@ function App() {
           projectTitle={projectTitle.trim() || reportProject?.projectName || ''}
           githubUrl={githubUrl.trim()}
           coverEditMode={coverEditMode}
-          freeCoverContent={freeCoverContent}
+          freeCoverContent={freeCoverContentForPdf}
         />
       </div>
 
@@ -197,8 +188,14 @@ function App() {
             projectTitle={projectTitle.trim() || reportProject?.projectName || ''}
             githubUrl={githubUrl}
             coverEditMode={coverEditMode}
-            freeCoverContent={freeCoverContent}
-            onFreeCoverChange={setFreeCoverContent}
+            freeCoverTitle={freeCoverTitle}
+            freeCoverSubtitle={freeCoverSubtitle}
+            freeCoverBody={freeCoverBody}
+            onFreeCoverChange={({ title, subtitle, body }) => {
+              setFreeCoverTitle(title);
+              setFreeCoverSubtitle(subtitle);
+              setFreeCoverBody(body);
+            }}
           />
       </div>
     </div>
