@@ -24,6 +24,18 @@ function App() {
   const [coverEditMode, setCoverEditMode] = useState(false);
   const [freeCoverContent, setFreeCoverContent] = useState('');
 
+  const reportProject = useMemo(() => {
+    if (!project?.files?.length) return null;
+    const pathsSet = new Set(selectedPaths);
+    const files = project.files.filter(f => pathsSet.has(f.path));
+    if (files.length === 0) return null;
+    return {
+      ...project,
+      files,
+      tree: buildTree(files.map(f => f.path)),
+    };
+  }, [project, selectedPaths]);
+
   function buildDefaultCoverContent(title, snack, github) {
     const lines = [
       'Título del Proyecto',
@@ -56,18 +68,6 @@ function App() {
     const initial = (proj.files || []).filter(f => !isExcludedByDefault(f.path)).map(f => f.path);
     setSelectedPaths(initial);
   }, []);
-
-  const reportProject = useMemo(() => {
-    if (!project?.files?.length) return null;
-    const pathsSet = new Set(selectedPaths);
-    const files = project.files.filter(f => pathsSet.has(f.path));
-    if (files.length === 0) return null;
-    return {
-      ...project,
-      files,
-      tree: buildTree(files.map(f => f.path)),
-    };
-  }, [project, selectedPaths]);
 
   const handleSelectionChange = useCallback((updater) => {
     setSelectedPaths(updater);
