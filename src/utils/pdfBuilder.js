@@ -289,18 +289,33 @@ export async function buildPdf(project, screenshots = [], reflection = null, sna
   const sections = buildDocSections(project.files);
   const coverTitle = (projectTitle || project.projectName || '').trim() || project.projectName;
 
-  // Cover: editable (free text) or structured
+  // Cover: editable (free text) — same layout as structured: subtitle, title, body (all centered)
   if (coverEditMode && freeCoverContent.trim()) {
+    const parts = freeCoverContent.split(/\n\n/);
+    const editTitle = (parts[0] || '').trim();
+    const editSubtitle = (parts[1] || '').trim();
+    const editBody = parts.length > 2 ? parts.slice(2).join('\n\n').trim() : '';
+
+    doc.setTextColor(0, 0, 0);
+    // Subtitle (e.g. "Reporte del Proyecto")
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.text(editSubtitle || ' ', A4_WIDTH / 2, 75, { align: 'center' });
+    // Title (large, centered)
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    const titleW = doc.getTextWidth(editTitle || ' ');
+    doc.text(editTitle || ' ', (A4_WIDTH - titleW) / 2, 92);
+    // Body (centered, wrapped lines)
+    let coverY = 108;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
-    doc.setTextColor(0, 0, 0);
-    let coverY = MARGIN;
-    const coverLines = freeCoverContent.split(/\r?\n/);
-    for (const line of coverLines) {
+    const bodyLines = editBody.split(/\r?\n/);
+    for (const line of bodyLines) {
       const wrapped = doc.splitTextToSize(line || ' ', CONTENT_WIDTH);
       for (const w of wrapped) {
         if (coverY > A4_HEIGHT - MARGIN) break;
-        doc.text(w, MARGIN, coverY);
+        doc.text(w, A4_WIDTH / 2, coverY, { align: 'center' });
         coverY += LINE_HEIGHT_NORMAL;
       }
       coverY += 2;
