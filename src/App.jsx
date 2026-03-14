@@ -21,6 +21,34 @@ function App() {
   const [snackUrl, setSnackUrl] = useState('');
   const [projectTitle, setProjectTitle] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
+  const [coverEditMode, setCoverEditMode] = useState(false);
+  const [freeCoverContent, setFreeCoverContent] = useState('');
+
+  function buildDefaultCoverContent(title, snack, github) {
+    const lines = [
+      'Título del Proyecto',
+      '',
+      title || '(Título del proyecto)',
+      '',
+      'Snack URL:',
+      snack || '(obligatorio)',
+      '',
+      'Repositorio de GitHub:',
+      github || '(opcional)',
+    ];
+    return lines.join('\n');
+  }
+
+  const handleCoverEditToggle = useCallback((enabled) => {
+    setCoverEditMode(enabled);
+    if (enabled) {
+      setFreeCoverContent(buildDefaultCoverContent(
+        projectTitle.trim() || reportProject?.projectName,
+        snackUrl.trim(),
+        githubUrl.trim()
+      ));
+    }
+  }, [projectTitle, snackUrl, githubUrl, reportProject]);
 
   const handleProjectLoaded = useCallback((proj) => {
     setProject(proj);
@@ -69,10 +97,24 @@ function App() {
           snackUrl={snackUrl.trim()}
           projectTitle={projectTitle.trim() || reportProject?.projectName || ''}
           githubUrl={githubUrl.trim()}
+          coverEditMode={coverEditMode}
+          freeCoverContent={freeCoverContent}
         />
       </div>
 
       {reportProject && (
+        <>
+        <div className="app-cover-edit-toggle">
+          <label className="reflection-toggle-label">
+            <input
+              type="checkbox"
+              checked={coverEditMode}
+              onChange={(e) => handleCoverEditToggle(e.target.checked)}
+              className="reflection-toggle-checkbox"
+            />
+            <span>Editar portada manualmente</span>
+          </label>
+        </div>
         <div className="app-cover-fields">
           <label className="app-cover-label">
             <span className="app-cover-label-text">Título del Proyecto:</span>
@@ -112,6 +154,7 @@ function App() {
             <p className="app-cover-hint">Recomendado: la URL debe comenzar con https://github.com/</p>
           )}
         </div>
+        </>
       )}
 
       <div className="app-reflection-toggle">
@@ -153,6 +196,9 @@ function App() {
             snackUrl={snackUrl}
             projectTitle={projectTitle.trim() || reportProject?.projectName || ''}
             githubUrl={githubUrl}
+            coverEditMode={coverEditMode}
+            freeCoverContent={freeCoverContent}
+            onFreeCoverChange={setFreeCoverContent}
           />
       </div>
     </div>

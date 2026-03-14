@@ -36,6 +36,10 @@
   margin-bottom: 24px;
 }
 
+.app-cover-edit-toggle {
+  margin-bottom: 12px;
+}
+
 .app-cover-fields {
   display: flex;
   flex-direction: column;
@@ -389,6 +393,32 @@
 .report-cover {
   text-align: center;
   padding: 48px 0;
+}
+
+.report-cover-editor {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-height: 280px;
+  padding: 24px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  text-align: left;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-h);
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+}
+
+.report-cover-editor:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-bg);
 }
 
 .report-cover-title {

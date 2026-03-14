@@ -1,4 +1,4 @@
-import { useRef, useMemo, useState } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 import { buildDocSections } from '../utils/docStructure.js';
 import { highlightCode, getLanguage } from '../utils/prismSetup.js';
 
@@ -74,8 +74,20 @@ export function ReportPreview({
   snackUrl = '',
   projectTitle = '',
   githubUrl = '',
+  coverEditMode = false,
+  freeCoverContent = '',
+  onFreeCoverChange,
 }) {
   const containerRef = useRef(null);
+  const coverEditorRef = useRef(null);
+  const prevCoverEditModeRef = useRef(false);
+
+  useEffect(() => {
+    if (coverEditMode && !prevCoverEditModeRef.current && coverEditorRef.current) {
+      coverEditorRef.current.innerText = freeCoverContent;
+    }
+    prevCoverEditModeRef.current = coverEditMode;
+  }, [coverEditMode, freeCoverContent]);
 
   const sections = useMemo(
     () => (project?.files ? buildDocSections(project.files) : []),
@@ -100,21 +112,35 @@ export function ReportPreview({
     <article className="report-preview" id="report-preview" ref={containerRef}>
       {/* Cover */}
       <section className="report-cover">
-        <h1 className="report-cover-title">{projectTitle || project.projectName}</h1>
-        <p className="report-cover-subtitle">Reporte del Proyecto</p>
-        {snackUrl.trim() && (
-          <p className="report-cover-field">
-            <strong>Snack URL:</strong>
-            <br />
-            <span className="report-cover-url">{snackUrl.trim()}</span>
-          </p>
-        )}
-        {githubUrl.trim() && (
-          <p className="report-cover-field">
-            <strong>Repositorio de GitHub:</strong>
-            <br />
-            <span className="report-cover-url">{githubUrl.trim()}</span>
-          </p>
+        {coverEditMode ? (
+          <div
+            ref={coverEditorRef}
+            className="report-cover-editor"
+            contentEditable
+            suppressContentEditableWarning
+            onInput={(e) => onFreeCoverChange?.(e.currentTarget.innerText)}
+            role="textbox"
+            aria-label="Portada editable"
+          />
+        ) : (
+          <>
+            <h1 className="report-cover-title">{projectTitle || project.projectName}</h1>
+            <p className="report-cover-subtitle">Reporte del Proyecto</p>
+            {snackUrl.trim() && (
+              <p className="report-cover-field">
+                <strong>Snack URL:</strong>
+                <br />
+                <span className="report-cover-url">{snackUrl.trim()}</span>
+              </p>
+            )}
+            {githubUrl.trim() && (
+              <p className="report-cover-field">
+                <strong>Repositorio de GitHub:</strong>
+                <br />
+                <span className="report-cover-url">{githubUrl.trim()}</span>
+              </p>
+            )}
+          </>
         )}
       </section>
 

@@ -3,7 +3,7 @@ import { buildPdf } from '../utils/pdfBuilder.js';
 
 const SNACK_URL_PREFIX = 'https://snack.expo.dev/';
 
-export function PdfExport({ project, screenshots = [], reflection = null, snackUrl = '', projectTitle = '', githubUrl = '', disabled }) {
+export function PdfExport({ project, screenshots = [], reflection = null, snackUrl = '', projectTitle = '', githubUrl = '', coverEditMode = false, freeCoverContent = '', disabled }) {
   const [exporting, setExporting] = useState(false);
   const trimmedSnack = snackUrl.trim();
   const isValidSnackUrl = trimmedSnack.length > 0 && trimmedSnack.startsWith(SNACK_URL_PREFIX);
@@ -21,7 +21,7 @@ export function PdfExport({ project, screenshots = [], reflection = null, snackU
     }
     setExporting(true);
     try {
-      const doc = await buildPdf(project, screenshots, reflection, trimmedSnack, projectTitle, githubUrl);
+      const doc = await buildPdf(project, screenshots, reflection, trimmedSnack, projectTitle, githubUrl, coverEditMode, freeCoverContent);
       doc.save(`${project.projectName}_reporte.pdf`);
     } catch (err) {
       console.error(err);

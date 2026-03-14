@@ -136,7 +136,7 @@ const FONT_SIZE_SUB = 14;
 const FONT_SIZE_CODE = 8;
 const CODE_INDENT_CHARS = 4; // number of spaces to treat as one indent level for wrap continuation
 
-export async function buildPdf(project, screenshots = [], reflection = null, snackUrl = '', projectTitle = '', githubUrl = '') {
+export async function buildPdf(project, screenshots = [], reflection = null, snackUrl = '', projectTitle = '', githubUrl = '', coverEditMode = false, freeCoverContent = '') {
   const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
   let y = MARGIN;
 
@@ -289,59 +289,77 @@ export async function buildPdf(project, screenshots = [], reflection = null, sna
   const sections = buildDocSections(project.files);
   const coverTitle = (projectTitle || project.projectName || '').trim() || project.projectName;
 
-  // Cover: Reporte del Proyecto, título, Snack URL, GitHub (solo si hay URL)
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(12);
-  doc.setTextColor(0, 0, 0);
-  doc.text('Reporte del Proyecto', A4_WIDTH / 2, 75, { align: 'center' });
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(22);
-  const titleW = doc.getTextWidth(coverTitle);
-  doc.text(coverTitle, (A4_WIDTH - titleW) / 2, 92);
-  let coverY = 108;
-  if (snackUrl.trim()) {
+  // Cover: editable (free text) or structured
+  if (coverEditMode && freeCoverContent.trim()) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
     doc.setTextColor(0, 0, 0);
-    doc.text('Snack URL:', A4_WIDTH / 2, coverY, { align: 'center' });
-    coverY += 6;
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 255);
-    const fullUrl = snackUrl.trim();
-    let displayUrl = fullUrl;
-    if (doc.getTextWidth(displayUrl) > CONTENT_WIDTH) {
-      const maxChars = Math.floor(CONTENT_WIDTH / doc.getTextWidth('m'));
-      displayUrl = displayUrl.slice(0, Math.max(0, maxChars - 3)) + '...';
+    let coverY = MARGIN;
+    const coverLines = freeCoverContent.split(/\r?\n/);
+    for (const line of coverLines) {
+      const wrapped = doc.splitTextToSize(line || ' ', CONTENT_WIDTH);
+      for (const w of wrapped) {
+        if (coverY > A4_HEIGHT - MARGIN) break;
+        doc.text(w, MARGIN, coverY);
+        coverY += LINE_HEIGHT_NORMAL;
+      }
+      coverY += 2;
     }
-    const urlX = (A4_WIDTH - doc.getTextWidth(displayUrl)) / 2;
-    if (typeof doc.textWithLink === 'function') {
-      doc.textWithLink(displayUrl, urlX, coverY, { url: fullUrl });
-    } else {
-      doc.text(displayUrl, urlX, coverY);
-    }
-    doc.setTextColor(0, 0, 0);
-    coverY += 10;
-  }
-  if (githubUrl.trim()) {
+  } else {
+    // Structured cover: Reporte del Proyecto, título, Snack URL, GitHub (solo si hay URL)
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(11);
-    doc.text('Repositorio de GitHub:', A4_WIDTH / 2, coverY, { align: 'center' });
-    coverY += 6;
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 255);
-    const fullGh = githubUrl.trim();
-    let displayGh = fullGh;
-    if (doc.getTextWidth(displayGh) > CONTENT_WIDTH) {
-      const maxChars = Math.floor(CONTENT_WIDTH / doc.getTextWidth('m'));
-      displayGh = displayGh.slice(0, Math.max(0, maxChars - 3)) + '...';
-    }
-    const ghX = (A4_WIDTH - doc.getTextWidth(displayGh)) / 2;
-    if (typeof doc.textWithLink === 'function') {
-      doc.textWithLink(displayGh, ghX, coverY, { url: fullGh });
-    } else {
-      doc.text(displayGh, ghX, coverY);
-    }
+    doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
+    doc.text('Reporte del Proyecto', A4_WIDTH / 2, 75, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    const titleW = doc.getTextWidth(coverTitle);
+    doc.text(coverTitle, (A4_WIDTH - titleW) / 2, 92);
+    let coverY = 108;
+    if (snackUrl.trim()) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Snack URL:', A4_WIDTH / 2, coverY, { align: 'center' });
+      coverY += 6;
+      doc.setFontSize(10);
+      doc.setTextColor(0, 0, 255);
+      const fullUrl = snackUrl.trim();
+      let displayUrl = fullUrl;
+      if (doc.getTextWidth(displayUrl) > CONTENT_WIDTH) {
+        const maxChars = Math.floor(CONTENT_WIDTH / doc.getTextWidth('m'));
+        displayUrl = displayUrl.slice(0, Math.max(0, maxChars - 3)) + '...';
+      }
+      const urlX = (A4_WIDTH - doc.getTextWidth(displayUrl)) / 2;
+      if (typeof doc.textWithLink === 'function') {
+        doc.textWithLink(displayUrl, urlX, coverY, { url: fullUrl });
+      } else {
+        doc.text(displayUrl, urlX, coverY);
+      }
+      doc.setTextColor(0, 0, 0);
+      coverY += 10;
+    }
+    if (githubUrl.trim()) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      doc.text('Repositorio de GitHub:', A4_WIDTH / 2, coverY, { align: 'center' });
+      coverY += 6;
+      doc.setFontSize(10);
+      doc.setTextColor(0, 0, 255);
+      const fullGh = githubUrl.trim();
+      let displayGh = fullGh;
+      if (doc.getTextWidth(displayGh) > CONTENT_WIDTH) {
+        const maxChars = Math.floor(CONTENT_WIDTH / doc.getTextWidth('m'));
+        displayGh = displayGh.slice(0, Math.max(0, maxChars - 3)) + '...';
+      }
+      const ghX = (A4_WIDTH - doc.getTextWidth(displayGh)) / 2;
+      if (typeof doc.textWithLink === 'function') {
+        doc.textWithLink(displayGh, ghX, coverY, { url: fullGh });
+      } else {
+        doc.text(displayGh, ghX, coverY);
+      }
+      doc.setTextColor(0, 0, 0);
+    }
   }
   doc.addPage();
   y = MARGIN;
