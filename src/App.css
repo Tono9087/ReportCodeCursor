@@ -36,7 +36,10 @@
   margin-bottom: 24px;
 }
 
-.app-cover-field {
+.app-cover-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   margin-bottom: 20px;
 }
 

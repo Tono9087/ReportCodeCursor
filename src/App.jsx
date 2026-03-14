@@ -19,9 +19,12 @@ function App() {
   const [reflectionQ, setReflectionQ] = useState('');
   const [reflectionA, setReflectionA] = useState('');
   const [snackUrl, setSnackUrl] = useState('');
+  const [projectTitle, setProjectTitle] = useState('');
+  const [githubUrl, setGithubUrl] = useState('');
 
   const handleProjectLoaded = useCallback((proj) => {
     setProject(proj);
+    setProjectTitle(proj.projectName || '');
     const initial = (proj.files || []).filter(f => !isExcludedByDefault(f.path)).map(f => f.path);
     setSelectedPaths(initial);
   }, []);
@@ -64,11 +67,23 @@ function App() {
               : null
           }
           snackUrl={snackUrl.trim()}
+          projectTitle={projectTitle.trim() || reportProject?.projectName || ''}
+          githubUrl={githubUrl.trim()}
         />
       </div>
 
       {reportProject && (
-        <div className="app-cover-field">
+        <div className="app-cover-fields">
+          <label className="app-cover-label">
+            <span className="app-cover-label-text">Título del Proyecto:</span>
+            <input
+              type="text"
+              className="app-cover-input"
+              value={projectTitle}
+              onChange={(e) => setProjectTitle(e.target.value)}
+              placeholder={reportProject.projectName}
+            />
+          </label>
           <label className="app-cover-label">
             <span className="app-cover-label-text">Snack URL:</span>
             <input
@@ -81,7 +96,20 @@ function App() {
             />
           </label>
           {snackUrl.trim() && !snackUrl.trim().startsWith('https://snack.expo.dev/') && (
-            <p className="app-cover-hint">Recommended: URL should start with https://snack.expo.dev/</p>
+            <p className="app-cover-hint">La URL debe comenzar con https://snack.expo.dev/</p>
+          )}
+          <label className="app-cover-label">
+            <span className="app-cover-label-text">Repositorio de GitHub (opcional):</span>
+            <input
+              type="url"
+              className="app-cover-input"
+              value={githubUrl}
+              onChange={(e) => setGithubUrl(e.target.value)}
+              placeholder="https://github.com/usuario/repositorio"
+            />
+          </label>
+          {githubUrl.trim() && !githubUrl.trim().startsWith('https://github.com/') && (
+            <p className="app-cover-hint">Recomendado: la URL debe comenzar con https://github.com/</p>
           )}
         </div>
       )}
@@ -123,6 +151,8 @@ function App() {
             onReflectionQ={setReflectionQ}
             onReflectionA={setReflectionA}
             snackUrl={snackUrl}
+            projectTitle={projectTitle.trim() || reportProject?.projectName || ''}
+            githubUrl={githubUrl}
           />
       </div>
     </div>

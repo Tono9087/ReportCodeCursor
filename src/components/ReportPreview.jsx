@@ -72,6 +72,8 @@ export function ReportPreview({
   onReflectionQ,
   onReflectionA,
   snackUrl = '',
+  projectTitle = '',
+  githubUrl = '',
 }) {
   const containerRef = useRef(null);
 
@@ -98,8 +100,8 @@ export function ReportPreview({
     <article className="report-preview" id="report-preview" ref={containerRef}>
       {/* Cover */}
       <section className="report-cover">
-        <h1 className="report-cover-title">{project.projectName}</h1>
-        <p className="report-cover-subtitle">Programming Project Report</p>
+        <h1 className="report-cover-title">{projectTitle || project.projectName}</h1>
+        <p className="report-cover-subtitle">Reporte del Proyecto</p>
         {snackUrl.trim() && (
           <p className="report-cover-field">
             <strong>Snack URL:</strong>
@@ -107,13 +109,20 @@ export function ReportPreview({
             <span className="report-cover-url">{snackUrl.trim()}</span>
           </p>
         )}
+        {githubUrl.trim() && (
+          <p className="report-cover-field">
+            <strong>Repositorio de GitHub:</strong>
+            <br />
+            <span className="report-cover-url">{githubUrl.trim()}</span>
+          </p>
+        )}
       </section>
 
       <div className="page-break" />
 
-      {/* 1. Structure */}
+      {/* 1. Estructura del Proyecto */}
       <section id="structure" className="report-section">
-        <h2>1. Project Structure</h2>
+        <h2>1. Estructura del Proyecto</h2>
         <div className="report-tree">
           <TreeView nodes={project.tree} />
         </div>
@@ -121,9 +130,9 @@ export function ReportPreview({
 
       <div className="page-break" />
 
-      {/* 2. Source Code */}
+      {/* 2. Código Fuente */}
       <section id="source" className="report-section">
-        <h2>2. Source Code</h2>
+        <h2>2. Código Fuente</h2>
         {sections.map(({ section, files }) => (
           <div key={section} className="report-source-group">
             <h3>{section}</h3>
@@ -139,11 +148,11 @@ export function ReportPreview({
         <>
           <div className="page-break" />
           <section id="screenshots" className="report-section">
-            <h2>3. Screenshots</h2>
+            <h2>3. Capturas de Pantalla</h2>
             {screenshots.map((s, i) => (
               <figure key={i} className="report-screenshot page-break-inside-avoid">
                 <img src={s.dataUrl} alt={`Screenshot ${i + 1}`} className="report-screenshot-img" />
-                <figcaption>Screenshot {i + 1}</figcaption>
+                <figcaption>Captura {i + 1}</figcaption>
               </figure>
             ))}
           </section>

@@ -136,7 +136,7 @@ const FONT_SIZE_SUB = 14;
 const FONT_SIZE_CODE = 8;
 const CODE_INDENT_CHARS = 4; // number of spaces to treat as one indent level for wrap continuation
 
-export async function buildPdf(project, screenshots = [], reflection = null, snackUrl = '') {
+export async function buildPdf(project, screenshots = [], reflection = null, snackUrl = '', projectTitle = '', githubUrl = '') {
   const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
   let y = MARGIN;
 
@@ -287,21 +287,23 @@ export async function buildPdf(project, screenshots = [], reflection = null, sna
   }
 
   const sections = buildDocSections(project.files);
+  const coverTitle = (projectTitle || project.projectName || '').trim() || project.projectName;
 
-  // Cover
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(22);
-  doc.setTextColor(0, 0, 0);
-  const titleW = doc.getTextWidth(project.projectName);
-  doc.text(project.projectName, (A4_WIDTH - titleW) / 2, 75);
+  // Cover: Reporte del Proyecto, título, Snack URL, GitHub (solo si hay URL)
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(12);
-  doc.text('Informe del Proyecto de Programación', A4_WIDTH / 2, 90, { align: 'center' });
-  let coverY = 105;
+  doc.setTextColor(0, 0, 0);
+  doc.text('Reporte del Proyecto', A4_WIDTH / 2, 75, { align: 'center' });
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(22);
+  const titleW = doc.getTextWidth(coverTitle);
+  doc.text(coverTitle, (A4_WIDTH - titleW) / 2, 92);
+  let coverY = 108;
   if (snackUrl.trim()) {
+    doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
     doc.setTextColor(0, 0, 0);
-    doc.text('URL de Snack:', A4_WIDTH / 2, coverY, { align: 'center' });
+    doc.text('Snack URL:', A4_WIDTH / 2, coverY, { align: 'center' });
     coverY += 6;
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 255);
@@ -318,12 +320,34 @@ export async function buildPdf(project, screenshots = [], reflection = null, sna
       doc.text(displayUrl, urlX, coverY);
     }
     doc.setTextColor(0, 0, 0);
+    coverY += 10;
+  }
+  if (githubUrl.trim()) {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    doc.text('Repositorio de GitHub:', A4_WIDTH / 2, coverY, { align: 'center' });
+    coverY += 6;
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 255);
+    const fullGh = githubUrl.trim();
+    let displayGh = fullGh;
+    if (doc.getTextWidth(displayGh) > CONTENT_WIDTH) {
+      const maxChars = Math.floor(CONTENT_WIDTH / doc.getTextWidth('m'));
+      displayGh = displayGh.slice(0, Math.max(0, maxChars - 3)) + '...';
+    }
+    const ghX = (A4_WIDTH - doc.getTextWidth(displayGh)) / 2;
+    if (typeof doc.textWithLink === 'function') {
+      doc.textWithLink(displayGh, ghX, coverY, { url: fullGh });
+    } else {
+      doc.text(displayGh, ghX, coverY);
+    }
+    doc.setTextColor(0, 0, 0);
   }
   doc.addPage();
   y = MARGIN;
 
-  // 1. Estructura del proyecto
-  addHeading('1. Estructura del proyecto', 2);
+  // 1. Estructura del Proyecto
+  addHeading('1. Estructura del Proyecto', 2);
   doc.setFont('courier', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(0, 0, 0);
@@ -336,8 +360,8 @@ export async function buildPdf(project, screenshots = [], reflection = null, sna
   y += 8;
   doc.setFont('helvetica', 'normal');
 
-  // 2. Código fuente
-  addHeading('2. Código fuente', 2);
+  // 2. Código Fuente
+  addHeading('2. Código Fuente', 2);
   const codeOpts = {
     contentWidth: CONTENT_WIDTH,
     lineHeight: LINE_HEIGHT_CODE,
@@ -374,11 +398,11 @@ export async function buildPdf(project, screenshots = [], reflection = null, sna
     }
   }
 
-  // 3. Capturas de pantalla
+  // 3. Capturas de Pantalla
   if (screenshots.length > 0) {
     doc.addPage();
     y = MARGIN;
-    addHeading('3. Capturas de pantalla', 2);
+    addHeading('3. Capturas de Pantalla', 2);
     for (let i = 0; i < screenshots.length; i++) {
       checkPageBreak(20);
       const img = screenshots[i];

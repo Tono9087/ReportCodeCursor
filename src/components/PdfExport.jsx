@@ -1,24 +1,31 @@
 import { useState } from 'react';
 import { buildPdf } from '../utils/pdfBuilder.js';
 
-export function PdfExport({ project, screenshots = [], reflection = null, snackUrl = '', disabled }) {
+const SNACK_URL_PREFIX = 'https://snack.expo.dev/';
+
+export function PdfExport({ project, screenshots = [], reflection = null, snackUrl = '', projectTitle = '', githubUrl = '', disabled }) {
   const [exporting, setExporting] = useState(false);
-  const isValidSnackUrl = snackUrl.trim().length > 0;
+  const trimmedSnack = snackUrl.trim();
+  const isValidSnackUrl = trimmedSnack.length > 0 && trimmedSnack.startsWith(SNACK_URL_PREFIX);
   const canExport = project && isValidSnackUrl && !disabled;
 
   async function handleExport() {
     if (!project) return;
-    if (!snackUrl.trim()) {
-      alert('Snack URL is required to generate the report.');
+    if (!trimmedSnack) {
+      alert('Snack URL es obligatorio para generar el reporte.');
+      return;
+    }
+    if (!trimmedSnack.startsWith(SNACK_URL_PREFIX)) {
+      alert('La Snack URL debe comenzar con https://snack.expo.dev/');
       return;
     }
     setExporting(true);
     try {
-      const doc = await buildPdf(project, screenshots, reflection, snackUrl.trim());
-      doc.save(`${project.projectName}_report.pdf`);
+      const doc = await buildPdf(project, screenshots, reflection, trimmedSnack, projectTitle, githubUrl);
+      doc.save(`${project.projectName}_reporte.pdf`);
     } catch (err) {
       console.error(err);
-      alert('PDF export failed: ' + (err.message || 'Unknown error'));
+      alert('Error al generar el PDF: ' + (err.message || 'Error desconocido'));
     } finally {
       setExporting(false);
     }
@@ -30,9 +37,9 @@ export function PdfExport({ project, screenshots = [], reflection = null, snackU
       className="btn-primary"
       onClick={handleExport}
       disabled={!canExport || exporting}
-      title={!isValidSnackUrl ? 'Snack URL is required to generate the report.' : undefined}
+      title={!isValidSnackUrl ? 'Snack URL es obligatorio y debe comenzar con https://snack.expo.dev/' : undefined}
     >
-      {exporting ? 'Generating PDF…' : 'Export PDF'}
+      {exporting ? 'Generando PDF…' : 'Generar PDF'}
     </button>
   );
 }
