@@ -1,4 +1,4 @@
-import { useRef, useMemo, useState, useEffect } from 'react';
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { buildDocSections } from '../utils/docStructure.js';
 import { highlightCode, getLanguage } from '../utils/prismSetup.js';
 
