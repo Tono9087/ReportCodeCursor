@@ -296,12 +296,12 @@ export async function buildPdf(project, screenshots = [], reflection = null, sna
   doc.text(project.projectName, (A4_WIDTH - titleW) / 2, 75);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(12);
-  doc.text('Programming Project Report', A4_WIDTH / 2, 90, { align: 'center' });
+  doc.text('Informe del Proyecto de Programación', A4_WIDTH / 2, 90, { align: 'center' });
   let coverY = 105;
   if (snackUrl.trim()) {
     doc.setFontSize(11);
     doc.setTextColor(0, 0, 0);
-    doc.text('Snack URL:', A4_WIDTH / 2, coverY, { align: 'center' });
+    doc.text('URL de Snack:', A4_WIDTH / 2, coverY, { align: 'center' });
     coverY += 6;
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 255);
@@ -322,8 +322,8 @@ export async function buildPdf(project, screenshots = [], reflection = null, sna
   doc.addPage();
   y = MARGIN;
 
-  // 1. Structure
-  addHeading('1. Project Structure', 2);
+  // 1. Estructura del proyecto
+  addHeading('1. Estructura del proyecto', 2);
   doc.setFont('courier', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(0, 0, 0);
@@ -336,8 +336,8 @@ export async function buildPdf(project, screenshots = [], reflection = null, sna
   y += 8;
   doc.setFont('helvetica', 'normal');
 
-  // 2. Source Code
-  addHeading('2. Source Code', 2);
+  // 2. Código fuente
+  addHeading('2. Código fuente', 2);
   const codeOpts = {
     contentWidth: CONTENT_WIDTH,
     lineHeight: LINE_HEIGHT_CODE,
@@ -374,11 +374,11 @@ export async function buildPdf(project, screenshots = [], reflection = null, sna
     }
   }
 
-  // 3. Screenshots (proportional scaling, centered, no stretch/crop)
+  // 3. Capturas de pantalla
   if (screenshots.length > 0) {
     doc.addPage();
     y = MARGIN;
-    addHeading('3. Screenshots', 2);
+    addHeading('3. Capturas de pantalla', 2);
     for (let i = 0; i < screenshots.length; i++) {
       checkPageBreak(20);
       const img = screenshots[i];
@@ -395,10 +395,10 @@ export async function buildPdf(project, screenshots = [], reflection = null, sna
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
         doc.setTextColor(80, 80, 80);
-        doc.text(`Screenshot ${i + 1}`, MARGIN, y);
+        doc.text(`Captura ${i + 1}`, MARGIN, y);
         y += 8;
       } catch (e) {
-        addParagraph(`Screenshot ${i + 1} (image could not be embedded)`);
+        addParagraph(`Captura ${i + 1} (no se pudo incrustar la imagen)`);
       }
     }
   }
