@@ -80,6 +80,11 @@
   border-color: var(--accent);
   box-shadow: 0 0 0 2px var(--accent-bg);
 }
+.app-cover-input.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--code-bg);
+}
 
 .app-cover-hint {
   margin: 6px 0 0;

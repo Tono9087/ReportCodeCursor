@@ -19,6 +19,7 @@ function App() {
   const [reflectionQ, setReflectionQ] = useState('');
   const [reflectionA, setReflectionA] = useState('');
   const [snackUrl, setSnackUrl] = useState('');
+  const [noSnackUrl, setNoSnackUrl] = useState(false);
   const [projectTitle, setProjectTitle] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
   const [coverEditMode, setCoverEditMode] = useState(false);
@@ -86,6 +87,7 @@ function App() {
               : null
           }
           snackUrl={snackUrl.trim()}
+          noSnackUrl={noSnackUrl}
           projectTitle={projectTitle.trim() || reportProject?.projectName || ''}
           githubUrl={githubUrl.trim()}
           coverEditMode={coverEditMode}
@@ -121,12 +123,21 @@ function App() {
             <span className="app-cover-label-text">Snack URL:</span>
             <input
               type="url"
-              className="app-cover-input"
+              className={`app-cover-input ${noSnackUrl ? 'disabled' : ''}`}
               value={snackUrl}
               onChange={(e) => setSnackUrl(e.target.value)}
               placeholder="https://snack.expo.dev/@username/project-name"
-              required
+              disabled={noSnackUrl}
+              required={!noSnackUrl}
             />
+            <label className="no-snack-checkbox" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', color: '#64748b' }}>
+              <input 
+                type="checkbox" 
+                checked={noSnackUrl} 
+                onChange={(e) => setNoSnackUrl(e.target.checked)}
+              />
+              <span>No hay link de snack</span>
+            </label>
           </label>
           {snackUrl.trim() && !snackUrl.trim().startsWith('https://snack.expo.dev/') && (
             <p className="app-cover-hint">La URL debe comenzar con https://snack.expo.dev/</p>
